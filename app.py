@@ -64,7 +64,7 @@ def send_order():
         return jsonify({'error': 'Gửi lệnh thất bại với mã lỗi: {}'.format(result.retcode)}), 400
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0')
 
 # Đóng kết nối tới terminal MetaTrader 5
 mt5.shutdown()

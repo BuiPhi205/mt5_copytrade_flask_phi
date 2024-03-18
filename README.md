@@ -9,7 +9,7 @@ copy trade mt5
 - git push -u origin master
 
 
-
+ 
 Cài đặt Flask:
 pip install Flask
 
