@@ -1,9 +1,10 @@
 import MetaTrader5 as mt5
 from flask import Flask, request, jsonify
+import pdb
 
 app = Flask(__name__)
 
-# Khởi tạo kết nối tới MetaTrader 5 terminal
+# Route cho trang chính
 @app.route('/')
 def hello():
     return 'Hello, World!'
@@ -30,11 +31,16 @@ def send_order():
     symbol = request.json.get('symbol')
     lot = request.json.get('lot')
 
+    if not mt5.initialize():
+        return jsonify({'error': 'Không thể kết nối tới terminal MetaTrader 5'}), 500
+
     symbol_info = mt5.symbol_info(symbol)
     if symbol_info is None:
+        mt5.shutdown()
         return jsonify({'error': '{} không tồn tại, không thể gửi lệnh mua'.format(symbol)}), 404
 
     if not symbol_info.visible:
+        mt5.shutdown()
         return jsonify({'error': '{} không hiển thị, thử chọn hiển thị'.format(symbol)}), 400
 
     point = mt5.symbol_info(symbol).point
@@ -59,12 +65,23 @@ def send_order():
     result = mt5.order_send(request_data)
 
     if result.retcode == mt5.TRADE_RETCODE_DONE:
+        mt5.shutdown()
         return jsonify({'message': 'Gửi lệnh thành công từ tài khoản: {}'.format(result.request)}), 200
     else:
+        mt5.shutdown()
         return jsonify({'error': 'Gửi lệnh thất bại với mã lỗi: {}'.format(result.retcode)}), 400
+
+# Route để nhận yêu cầu POST từ Rails
+@app.route('/receive_signal', methods=['POST'])
+def receive_signal():
+    data = request.json  # Trích xuất dữ liệu từ yêu cầu POST
+    # Xử lý dữ liệu nhận được từ Rails ở đây
+
+    # In ra dữ liệu nhận được từ yêu cầu POST từ Rails
+    print("Received data from Rails:", data)
+
+    # Trả về một phản hồi cho Rails
+    return jsonify({'status': 'success', 'message': 'Dữ liệu đã được nhận thành công từ Rails'}), 200
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
-
-# Đóng kết nối tới terminal MetaTrader 5
-mt5.shutdown()
