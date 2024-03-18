@@ -72,10 +72,11 @@ def send_order():
         return jsonify({'error': 'Gửi lệnh thất bại với mã lỗi: {}'.format(result.retcode)}), 400
 
 # Route để nhận yêu cầu POST từ Rails
-@app.route('/receive_signal', methods=['POST'])
+@app.route('/hook/signals', methods=['POST'])
 def receive_signal():
     data = request.json  # Trích xuất dữ liệu từ yêu cầu POST
     # Xử lý dữ liệu nhận được từ Rails ở đây
+    pdb.set_trace()
 
     # In ra dữ liệu nhận được từ yêu cầu POST từ Rails
     print("Received data from Rails:", data)
